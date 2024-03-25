@@ -19,7 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,6 +28,5 @@ public class AuthorEntity {
     private String surname;
 
     @OneToMany(mappedBy = "author")
-    @JsonIgnore
     private List<AuthorBookEntity> authorBooks;
 }

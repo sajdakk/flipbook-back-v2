@@ -22,13 +22,14 @@ public class ReviewEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     @JsonIgnore
     private BookEntity book;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonIgnore
     private UserEntity user;
 
     @Column(name = "content", columnDefinition = "TEXT")

@@ -1,5 +1,8 @@
 package com.sajdakk.flipbook.models;
 
+import com.sajdakk.flipbook.dtos.RegisterDto;
+import com.sajdakk.flipbook.entities.ReviewEntity;
+import com.sajdakk.flipbook.entities.RoleEntity;
 import com.sajdakk.flipbook.entities.UserEntity;
 import com.sajdakk.flipbook.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Component
 public class UsersModel {
@@ -43,8 +48,52 @@ public class UsersModel {
         return user;
     }
 
-//    public void createUser(String username, String password) {
-//        UserEntity.builder().name(username).password(password).build();
-//        usersRepository.save(new UserEntity(username, password));
-//    }
+    public UserEntity createUser(RegisterDto dto) {
+        UserEntity user = UserEntity.builder()
+                .name(dto.getName())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .email(dto.getEmail())
+                .surname(dto.getSurname())
+                .role(RoleEntity.builder().id(2).build())
+                .build();
+        return usersRepository.save(user);
+    }
+
+    public List<UserEntity> getAllUsers() {
+        return usersRepository.findAll();
+    }
+
+    public void removeUser(Integer id) {
+        usersRepository.removeUserById(id);
+    }
+
+    public void updateUserAvatar(Integer id, String avatar) {
+        UserEntity user = usersRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
+        }
+
+        user.setAvatar(avatar);
+        usersRepository.save(user);
+    }
+
+    public void upgradeUser(Integer id) {
+        UserEntity user = usersRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
+        }
+
+        user.setRole(RoleEntity.builder().id(3).build());
+        usersRepository.save(user);
+    }
+
+    public void downgradeUser(Integer id) {
+        UserEntity user = usersRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
+        }
+
+        user.setRole(RoleEntity.builder().id(2).build());
+        usersRepository.save(user);
+    }
 }

@@ -23,6 +23,7 @@ public class AuthorBookEntity {
 
     @ManyToOne
     @JoinColumn(name = "author_id", referencedColumnName = "id")
+    @JsonIgnore
     private AuthorEntity author;
 
     @ManyToOne

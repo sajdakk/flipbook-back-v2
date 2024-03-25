@@ -26,6 +26,10 @@ public class UserView {
     private String avatar;
     private RoleEntity role;
 
+    public static List<UserView> fromEntities(List<UserEntity> entities) {
+        return entities.stream().map(UserView::fromEntity).toList();
+    }
+
     public static UserView fromEntity(UserEntity entity) {
         return UserView.builder()
                 .id(entity.getId())
