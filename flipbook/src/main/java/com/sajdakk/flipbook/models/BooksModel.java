@@ -5,6 +5,7 @@ import com.sajdakk.flipbook.dtos.SearchDto;
 import com.sajdakk.flipbook.entities.BookEntity;
 import com.sajdakk.flipbook.entities.ReviewEntity;
 import com.sajdakk.flipbook.repositories.BooksRepository;
+import com.sajdakk.flipbook.services.UploadService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,12 +18,22 @@ import java.util.*;
 public class BooksModel {
 
     BooksRepository booksRepository;
+    UploadService uploadService;
 
-    public BooksModel(BooksRepository booksRepository) {
+    public BooksModel(BooksRepository booksRepository, UploadService uploadService) {
         this.booksRepository = booksRepository;
+        this.uploadService = uploadService;
     }
 
     public Integer addBook(AddBookDto addBookDto) {
+        byte[] imageData = Base64.getDecoder().decode(addBookDto.getImage());
+
+        String imagePath = uploadService.uploadFile(imageData, addBookDto.getImageExtension());
+        if (imagePath == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image");
+        }
+
+
         List<String> authors = new ArrayList<>();
         for (int i = 0; i < addBookDto.getAuthors().size(); i++) {
             String name = addBookDto.getAuthors().get(i).getName();
@@ -37,7 +48,7 @@ public class BooksModel {
                 addBookDto.getLanguage_id(),
                 addBookDto.getDate_of_publication(),
                 addBookDto.getPage_count(),
-                addBookDto.getImage(),
+                imagePath,
                 addBookDto.getIsbn_number(),
                 addBookDto.getDescription(),
                 new Date().toString(),

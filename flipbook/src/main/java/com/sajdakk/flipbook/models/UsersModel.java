@@ -1,10 +1,12 @@
 package com.sajdakk.flipbook.models;
 
+import com.sajdakk.flipbook.dtos.AddAvatarDto;
 import com.sajdakk.flipbook.dtos.RegisterDto;
 import com.sajdakk.flipbook.entities.ReviewEntity;
 import com.sajdakk.flipbook.entities.RoleEntity;
 import com.sajdakk.flipbook.entities.UserEntity;
 import com.sajdakk.flipbook.repositories.UsersRepository;
+import com.sajdakk.flipbook.services.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -14,19 +16,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Base64;
 import java.util.List;
 
 @Component
 public class UsersModel {
-    private final String defaultPassword = "$2y$10$wkR1VwX2yoFkmUQibWGoqe/kuUmIuu09jE8EHkC1gc1hTTOqez1sG";
 
     UsersRepository usersRepository;
+    UploadService uploadService;
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersModel(UsersRepository usersRepository) {
+    public UsersModel(UsersRepository usersRepository, UploadService uploadService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.uploadService = uploadService;
     }
 
     public UserEntity verifyUser(String email, String password) {
@@ -35,7 +39,7 @@ public class UsersModel {
         if (user == null) {
             // Even if the user is not found, we still want to
             // check the password to prevent timing attacks.
-            userPassword = defaultPassword;
+            userPassword = "$2y$10$wkR1VwX2yoFkmUQibWGoqe/kuUmIuu09jE8EHkC1gc1hTTOqez1sG";
         } else {
             userPassword = user.getPassword();
         }
@@ -67,13 +71,21 @@ public class UsersModel {
         usersRepository.removeUserById(id);
     }
 
-    public void updateUserAvatar(Integer id, String avatar) {
+    public void updateUserAvatar(Integer id, AddAvatarDto addAvatarDto) {
         UserEntity user = usersRepository.findById(id).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
         }
 
-        user.setAvatar(avatar);
+        byte[] imageData = Base64.getDecoder().decode(addAvatarDto.getImage());
+
+        String imagePath = uploadService.uploadFile(imageData, addAvatarDto.getImageExtension());
+        if (imagePath == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image");
+        }
+
+        uploadService.deleteFile(user.getAvatar());
+        user.setAvatar(imagePath);
         usersRepository.save(user);
     }
 

@@ -26,6 +26,9 @@ public class AddBookDto {
     @NotBlank(message = "Image is mandatory")
     private String image;
 
+    @NotBlank(message = "Image extension is mandatory")
+    private  String imageExtension;
+
     @NotBlank(message = "ISBN number is mandatory")
     private String isbn_number;
 
