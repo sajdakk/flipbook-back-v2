@@ -21,7 +21,6 @@ public class AuthController {
         this.usersModel = usersModel;
     }
 
-
     @PostMapping("login")
     public UserView login(HttpSession session, @RequestBody LoginDto dto) {
         UserEntity user = usersModel.verifyUser(dto.getEmail(), dto.getPassword());

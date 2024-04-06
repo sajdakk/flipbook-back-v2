@@ -31,6 +31,17 @@ public class UsersController {
         return UserView.fromEntities(usersModel.getAllUsers());
     }
 
+    @GetMapping("/users/{id}")
+    public UserView get(HttpSession session, @PathVariable("id") int id) {
+        Object currentUserId = session.getAttribute("user_id");
+        Object role = session.getAttribute("role");
+        if (!currentUserId.equals(id) && (role == null || !role.equals(3))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
+        }
+
+        return UserView.fromEntity(usersModel.getUsersById(id));
+    }
+
     @DeleteMapping("/users/{id}")
     public void delete(HttpSession session, @PathVariable("id") int id) {
         Object role = session.getAttribute("role");

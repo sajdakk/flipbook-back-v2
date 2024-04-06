@@ -63,9 +63,14 @@ public class UsersModel {
         return usersRepository.save(user);
     }
 
+    public UserEntity getUsersById(Integer id) {
+        return usersRepository.findById(id).orElse(null);
+    }
+
     public List<UserEntity> getAllUsers() {
         return usersRepository.findAll();
     }
+
 
     public void removeUser(Integer id) {
         usersRepository.removeUserById(id);

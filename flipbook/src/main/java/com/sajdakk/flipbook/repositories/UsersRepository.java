@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 public interface UsersRepository extends JpaRepository<UserEntity, Integer> {
     UserEntity findByEmail(String email);
 
-    @Query("SELECT remove_user_and_reviews(:user_id)")
+    @Query("SELECT remove_user_and_reviews(:userId)")
     void removeUserById(
-            @Param("user_id") Integer userId
+            @Param("userId") Integer userId
     );
 
 
