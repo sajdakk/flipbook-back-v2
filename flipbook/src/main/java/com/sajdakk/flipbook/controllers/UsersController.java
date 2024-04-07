@@ -34,6 +34,10 @@ public class UsersController {
     @GetMapping("/users/{id}")
     public UserView get(HttpSession session, @PathVariable("id") int id) {
         Object currentUserId = session.getAttribute("user_id");
+        if(currentUserId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
+        }
+
         Object role = session.getAttribute("role");
         if (!currentUserId.equals(id) && (role == null || !role.equals(3))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");

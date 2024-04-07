@@ -53,6 +53,11 @@ public class UsersModel {
     }
 
     public UserEntity createUser(RegisterDto dto) {
+        UserEntity existUser = usersRepository.findByEmail(dto.getEmail());
+        if (existUser != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exists");
+        }
+
         UserEntity user = UserEntity.builder()
                 .name(dto.getName())
                 .password(passwordEncoder.encode(dto.getPassword()))

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
 
 @RestController("/books")
@@ -26,13 +27,15 @@ public class BooksController {
         return BookView.fromEntities(booksModel.getAllBooks());
     }
 
-    @PostMapping("/search")
-    public List<BookView> search(HttpSession session, @RequestBody(required = false) SearchDto searchDto) {
-        return BookView.fromEntities(booksModel.search(searchDto));
+    @PostMapping("/books/search")
+    public List<BookView> search(@RequestBody(required = false) SearchDto searchDto) {
+        List<BookEntity> bookEntities = booksModel.search(searchDto);
+
+        return BookView.fromEntities(bookEntities);
     }
 
     @GetMapping("/books/top")
-    public List<BookView> getTop(HttpSession session, @RequestParam(required = false, name = "limit") Integer limit) {
+    public List<BookView> getTop(@RequestParam(required = false, name = "limit") Integer limit) {
         List<BookEntity> bookEntities = booksModel.getAllBooks();
 
         if (limit == null) {
@@ -45,6 +48,7 @@ public class BooksController {
 
         return BookView.fromEntities(bookEntities.subList(0, Math.min(limit, bookEntities.size())));
     }
+
 
     @GetMapping("/books/add")
     public Integer add(@RequestBody AddBookDto addBookDto, HttpSession session) {
