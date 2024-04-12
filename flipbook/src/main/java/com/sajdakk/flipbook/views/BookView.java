@@ -27,7 +27,7 @@ public class BookView {
     private String description;
     private Timestamp uploadDate;
     private Timestamp acceptDate;
-    private Integer createdBy;
+    private UserView createdBy;
     private Timestamp rejectDate;
     private GenreView genre;
     private LanguageView language;
@@ -50,7 +50,7 @@ public class BookView {
                 .description(entity.getDescription())
                 .uploadDate(entity.getUploadDate())
                 .acceptDate(entity.getAcceptDate())
-                .createdBy(entity.getCreatedBy())
+                .createdBy(UserView.fromEntity(entity.getCreatedBy()))
                 .rejectDate(entity.getRejectDate())
                 .genre(GenreView.fromEntity(entity.getGenre()))
                 .language(LanguageView.fromEntity(entity.getLanguage()))

@@ -2,15 +2,12 @@ package com.sajdakk.flipbook.models;
 
 import com.sajdakk.flipbook.dtos.AddAvatarDto;
 import com.sajdakk.flipbook.dtos.RegisterDto;
-import com.sajdakk.flipbook.entities.ReviewEntity;
 import com.sajdakk.flipbook.entities.RoleEntity;
 import com.sajdakk.flipbook.entities.UserEntity;
 import com.sajdakk.flipbook.repositories.UsersRepository;
 import com.sajdakk.flipbook.services.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -87,15 +84,28 @@ public class UsersModel {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
         }
 
-        byte[] imageData = Base64.getDecoder().decode(addAvatarDto.getImage());
-
-        String imagePath = uploadService.uploadFile(imageData, addAvatarDto.getImageExtension());
+        String imagePath = uploadService.uploadFile(addAvatarDto.getBytes(), addAvatarDto.getImageExtension());
         if (imagePath == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image");
         }
 
-        uploadService.deleteFile(user.getAvatar());
+        final String oldAvatar = user.getAvatar();
+        if (oldAvatar != null) {
+            uploadService.deleteFile(oldAvatar);
+        }
+        
         user.setAvatar(imagePath);
+        usersRepository.save(user);
+    }
+
+    public void deleteUserAvatar(int id) {
+        UserEntity user = usersRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
+        }
+
+        uploadService.deleteFile(user.getAvatar());
+        user.setAvatar(null);
         usersRepository.save(user);
     }
 

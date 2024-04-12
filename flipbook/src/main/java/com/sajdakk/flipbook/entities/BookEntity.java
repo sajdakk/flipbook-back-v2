@@ -47,8 +47,9 @@ public class BookEntity {
     @Column(name = "accept_date")
     private Timestamp acceptDate;
 
-    @Column(name = "created_by")
-    private Integer createdBy;
+    @ManyToOne
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    private UserEntity createdBy;
 
     @Column(name = "reject_date")
     private Timestamp rejectDate;

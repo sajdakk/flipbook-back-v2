@@ -1,5 +1,6 @@
 package com.sajdakk.flipbook.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,4 +41,8 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user")
     private List<ReviewEntity> reviews;
+
+    @OneToMany(mappedBy = "createdBy")
+    @JsonIgnore
+    private List<BookEntity> books;
 }

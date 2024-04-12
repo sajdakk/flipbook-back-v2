@@ -53,11 +53,23 @@ class BookForReviewView {
     private String description;
     private Timestamp uploadDate;
     private Timestamp acceptDate;
-    private Integer createdBy;
+    private UserView createdBy;
     private Timestamp rejectDate;
 
     public static BookForReviewView fromEntity(BookEntity entity) {
-        return BookForReviewView.builder().id(entity.getId()).title(entity.getTitle()).dateOfPublication(entity.getDateOfPublication()).pageCount(entity.getPageCount()).image(entity.getImage()).isbnNumber(entity.getIsbnNumber()).description(entity.getDescription()).uploadDate(entity.getUploadDate()).acceptDate(entity.getAcceptDate()).createdBy(entity.getCreatedBy()).rejectDate(entity.getRejectDate()).build();
+        return BookForReviewView.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .dateOfPublication(entity.getDateOfPublication())
+                .pageCount(entity.getPageCount())
+                .image(entity.getImage())
+                .isbnNumber(entity.getIsbnNumber())
+                .description(entity.getDescription())
+                .uploadDate(entity.getUploadDate())
+                .acceptDate(entity.getAcceptDate())
+                .createdBy(UserView.fromEntity(entity.getCreatedBy()))
+                .rejectDate(entity.getRejectDate())
+                .build();
     }
 }
 

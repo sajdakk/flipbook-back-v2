@@ -15,7 +15,7 @@ public class UploadService {
 
     public String uploadFile(byte[] file, String extension) {
         UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "." + extension;
+        String fileName = uuid  + extension;
         try (FileOutputStream fos = new FileOutputStream(uploadsDir + fileName)) {
             fos.write(file);
         } catch (IOException e) {

@@ -65,14 +65,22 @@ public class BooksModel {
             for (ReviewEntity review : book.getReviews()) {
                 sum += review.getRate();
             }
+
+            if (book.getReviews().isEmpty()) {
+                averages.put(book.getId(), 0.0);
+                continue;
+            }
+
+
             averages.put(book.getId(), sum / book.getReviews().size());
 
         }
+        System.out.println(averages);
         result.sort((o1, o2) -> {
-            return -Double.compare(averages.get(o2.getId()), averages.get(o1.getId()));
+            return Double.compare(averages.get(o2.getId()), averages.get(o1.getId()));
         });
 
-        return new ArrayList<BookEntity>(result);
+        return result;
     }
 
     public List<BookEntity> search(SearchDto searchDto) {
