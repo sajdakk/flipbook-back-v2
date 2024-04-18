@@ -28,10 +28,10 @@ public class AuthorsController {
         this.authorsModel = authorsModel;
     }
 
-    @GetMapping("authors")
+    @GetMapping("/authors")
     public List<AuthorView> getAll(HttpSession session) {
-        Object role = session.getAttribute("role");
-        if (role == null || !role.equals(2)) {
+        Object currentUserId = session.getAttribute("user_id");
+        if (currentUserId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 

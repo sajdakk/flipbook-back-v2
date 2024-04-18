@@ -5,9 +5,6 @@ import lombok.Data;
 
 @Data
 public class ReviewDto {
-    @NotBlank(message = "User id is mandatory")
-    private Integer userId;
-
     @NotBlank(message = "Book id is mandatory")
     private Integer bookId;
 

@@ -1,10 +1,10 @@
 package com.sajdakk.flipbook.models;
 
 import com.sajdakk.flipbook.dtos.AddBookDto;
+import com.sajdakk.flipbook.dtos.AuthorDto;
 import com.sajdakk.flipbook.dtos.SearchDto;
-import com.sajdakk.flipbook.entities.BookEntity;
-import com.sajdakk.flipbook.entities.ReviewEntity;
-import com.sajdakk.flipbook.repositories.BooksRepository;
+import com.sajdakk.flipbook.entities.*;
+import com.sajdakk.flipbook.repositories.*;
 import com.sajdakk.flipbook.services.UploadService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -12,16 +12,26 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.awt.print.Book;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 @Component
 public class BooksModel {
 
     BooksRepository booksRepository;
+
     UploadService uploadService;
 
-    public BooksModel(BooksRepository booksRepository, UploadService uploadService) {
+    AuthorsRepository authorsRepository;
+
+    public BooksModel(BooksRepository booksRepository, AuthorsRepository authorsRepository, UploadService uploadService) {
         this.booksRepository = booksRepository;
+        this.authorsRepository = authorsRepository;
+
         this.uploadService = uploadService;
     }
 
@@ -33,28 +43,55 @@ public class BooksModel {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image");
         }
 
+        List<Integer> bookAuthors = new ArrayList<>();
+        List<AuthorDto> authorsDto = addBookDto.getAuthors();
+        for (AuthorDto authorDto : authorsDto) {
+            Integer id = authorDto.getId();
+            System.out.println(id);
+            if (id == null) {
+                AuthorEntity author = AuthorEntity.builder()
+                        .name(authorDto.getName())
+                        .surname(authorDto.getSurname())
+                        .build();
+                System.out.println(author);
+                AuthorEntity result = authorsRepository.save(author);
+                System.out.println(result);
+                bookAuthors.add(result.getId());
+                continue;
+            }
 
-        List<String> authors = new ArrayList<>();
-        for (int i = 0; i < addBookDto.getAuthors().size(); i++) {
-            String name = addBookDto.getAuthors().get(i).getName();
-            String surname = addBookDto.getAuthors().get(i).getSurname();
-            authors.add(name + ' ' + surname);
+            AuthorEntity author = authorsRepository.findById(authorDto.getId()).orElse(null);
+            if (author == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
+            }
+
+            bookAuthors.add(author.getId());
         }
 
-        String authorsString = '{' + String.join(",", authors) + '}';
+        System.out.println(bookAuthors);
+        System.out.println("Dodajemy ksiazke!!!!");
+        Integer[] authorsArray = new Integer[bookAuthors.size()];
+        authorsArray = bookAuthors.toArray(authorsArray);
+
+        Date dateOfPub;
+        dateOfPub =  Date.from(Instant.parse(addBookDto.getDate_of_publication()));
+
         return booksRepository.addBook(
                 addBookDto.getTitle(),
                 addBookDto.getGenre_id(),
                 addBookDto.getLanguage_id(),
-                addBookDto.getDate_of_publication(),
+                dateOfPub,
                 addBookDto.getPage_count(),
                 imagePath,
                 addBookDto.getIsbn_number(),
                 addBookDto.getDescription(),
-                new Date().toString(),
+                new Date(),
                 addBookDto.getCreated_by(),
-                authorsString
+                authorsArray
+
         );
+
+
     }
 
     public List<BookEntity> getAllBooks() {
@@ -75,12 +112,23 @@ public class BooksModel {
             averages.put(book.getId(), sum / book.getReviews().size());
 
         }
-        System.out.println(averages);
         result.sort((o1, o2) -> {
             return Double.compare(averages.get(o2.getId()), averages.get(o1.getId()));
         });
 
         return result;
+    }
+
+    public List<BookEntity> getFavorites(int userId) {
+        Collection<BookEntity> result = booksRepository.getFavorites(userId);
+        return new ArrayList<BookEntity>(result);
+
+    }
+
+    public List<BookEntity> getForAdmin() {
+        Collection<BookEntity> result = booksRepository.findForAdmin();
+        return new ArrayList<BookEntity>(result);
+
     }
 
     public List<BookEntity> search(SearchDto searchDto) {

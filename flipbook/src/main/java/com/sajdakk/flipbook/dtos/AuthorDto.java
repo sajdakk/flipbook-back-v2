@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class AuthorDto {
+    private Integer id;
+
     @NotBlank(message = "Name is mandatory")
     private String name;
 

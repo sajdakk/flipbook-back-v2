@@ -50,10 +50,36 @@ public class BooksController {
     }
 
 
-    @GetMapping("/books/add")
-    public Integer add(@RequestBody AddBookDto addBookDto, HttpSession session) {
+    @GetMapping("/books/favorites")
+    public List<BookView> getFavorites(HttpSession session) {
+        Object currentUserId = session.getAttribute("user_id");
+        if (currentUserId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
+        }
+
+        List<BookEntity> bookEntities = booksModel.getFavorites((int) currentUserId);
+
+        return BookView.fromEntities(bookEntities);
+    }
+
+    @GetMapping("/books/admin")
+    public List<BookView> getAdminBooks(HttpSession session) {
         Object role = session.getAttribute("role");
-        if (role == null || !role.equals(2)) {
+        if (role == null || !role.equals(3)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
+        }
+
+
+        List<BookEntity> bookEntities = booksModel.getForAdmin();
+
+        return BookView.fromEntities(bookEntities);
+    }
+
+
+    @PostMapping("/books/add")
+    public Integer add(@RequestBody AddBookDto addBookDto, HttpSession session) {
+        Object currentUserId = session.getAttribute("user_id");
+        if (currentUserId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 
@@ -61,8 +87,8 @@ public class BooksController {
     }
 
     @GetMapping("/books/{id}")
-    public BookEntity get(@PathVariable("id") int id) {
-        return booksModel.getBookById(id);
+    public BookView get(@PathVariable("id") int id) {
+        return BookView.fromEntity(booksModel.getBookById(id));
     }
 
     @PostMapping("/books/{id}/accept")

@@ -1,7 +1,5 @@
 package com.sajdakk.flipbook.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sajdakk.flipbook.entities.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
+
 
 @Data
 @Entity

@@ -74,7 +74,6 @@ public class UsersController {
         usersModel.removeUser(id);
     }
 
-
     @RequestMapping(consumes = "multipart/form-data", method = {RequestMethod.POST}, path = {"/users/{id}/avatar"})
     public void updateAvatar(HttpSession session, @PathVariable("id") int id, @RequestPart("file") MultipartFile file) {
         Object loggedUserId = session.getAttribute("user_id");
@@ -117,24 +116,15 @@ public class UsersController {
         usersModel.deleteUserAvatar(id);
     }
 
-    @GetMapping("/users/{id}/upgrade")
+    @PostMapping("/users/{id}/toggle-admin")
     public void upgrade(HttpSession session, @PathVariable("id") int id) {
         Object role = session.getAttribute("role");
         if (role == null || !role.equals(3)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
         }
 
-        usersModel.upgradeUser(id);
+        usersModel.toggleAdmin(id);
     }
 
-    @GetMapping("/users/{id}/downgrade")
-    public void downgrade(HttpSession session, @PathVariable("id") int id) {
-        Object role = session.getAttribute("role");
-        if (role == null || !role.equals(3)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
-        }
-
-        usersModel.downgradeUser(id);
-    }
 
 }

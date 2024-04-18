@@ -22,8 +22,8 @@ public class LanguagesController {
 
     @GetMapping("/languages")
     public List<LanguageView> getAll(HttpSession session) {
-        Object role = session.getAttribute("role");
-        if (role == null || !role.equals(2)) {
+        Object currentUserId = session.getAttribute("user_id");
+        if (currentUserId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 

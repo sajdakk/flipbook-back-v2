@@ -93,7 +93,7 @@ public class UsersModel {
         if (oldAvatar != null) {
             uploadService.deleteFile(oldAvatar);
         }
-        
+
         user.setAvatar(imagePath);
         usersRepository.save(user);
     }
@@ -109,23 +109,20 @@ public class UsersModel {
         usersRepository.save(user);
     }
 
-    public void upgradeUser(Integer id) {
+    public void toggleAdmin(Integer id) {
         UserEntity user = usersRepository.findById(id).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
         }
 
-        user.setRole(RoleEntity.builder().id(3).build());
-        usersRepository.save(user);
-    }
-
-    public void downgradeUser(Integer id) {
-        UserEntity user = usersRepository.findById(id).orElse(null);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found");
+        if (user.getRole().getId() == 3) {
+            user.setRole(RoleEntity.builder().id(2).build());
+        } else {
+            user.setRole(RoleEntity.builder().id(3).build());
         }
 
-        user.setRole(RoleEntity.builder().id(2).build());
         usersRepository.save(user);
     }
+
+  
 }

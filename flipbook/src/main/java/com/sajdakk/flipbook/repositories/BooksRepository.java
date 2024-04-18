@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 @Transactional
 public interface BooksRepository extends JpaRepository<BookEntity, Integer> {
 
@@ -23,18 +26,25 @@ public interface BooksRepository extends JpaRepository<BookEntity, Integer> {
                                                                   @Param("authorSurname") String authorSurname);
 
 
-    @Query("SELECT add_book(:title, :genreId, :languageId, :dateOfPublication, :pageCount, :image, :isbn, :description, :uploadDate, :createdBy, :authorsString)")
+    @Query("SELECT f.book FROM FavoriteEntity f WHERE f.user.id = :userId")
+    Collection<BookEntity> getFavorites(@Param("userId") int userId);
+
+    @Query("SELECT b FROM BookEntity b WHERE b.rejectDate is null and b.acceptDate is null")
+    Collection<BookEntity> findForAdmin();
+
+
+    @Query("SELECT add_book(:title, :genreId, :languageId, :dateOfPublication, :pageCount, :image, :isbn, :description, :uploadDate, :createdBy, :authors)")
     Integer addBook(@Param("title") String title,
-                 @Param("genreId") Integer genreId,
-                 @Param("languageId") Integer languageId,
-                 @Param("dateOfPublication") String dateOfPublication,
-                 @Param("pageCount") Integer pageCount,
-                 @Param("image") String image,
-                 @Param("isbn") String isbn,
-                 @Param("description") String description,
-                 @Param("uploadDate") String uploadDate,
-                 @Param("createdBy") Integer createdBy,
-                 @Param("authorsString") String authorsString
+                    @Param("genreId") Integer genreId,
+                    @Param("languageId") Integer languageId,
+                    @Param("dateOfPublication") Date dateOfPublication,
+                    @Param("pageCount") Integer pageCount,
+                    @Param("image") String image,
+                    @Param("isbn") String isbn,
+                    @Param("description") String description,
+                    @Param("uploadDate") Date uploadDate,
+                    @Param("createdBy") Integer createdBy,
+                    @Param("authors") Integer[] authors
     );
 
 }
