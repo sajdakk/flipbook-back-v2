@@ -4,22 +4,27 @@ import com.sajdakk.flipbook.dtos.AddBookDto;
 import com.sajdakk.flipbook.dtos.SearchDto;
 import com.sajdakk.flipbook.entities.BookEntity;
 import com.sajdakk.flipbook.models.BooksModel;
+import com.sajdakk.flipbook.utils.JwtUtil;
 import com.sajdakk.flipbook.views.BookView;
-import jakarta.servlet.http.HttpSession;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.List;
 
 @RestController("/books")
 public class BooksController {
-    BooksModel booksModel;
+    private final BooksModel booksModel;
+    private final JwtUtil jwtUtil;
+
 
     @Autowired
-    public BooksController(BooksModel booksModel) {
+    public BooksController(BooksModel booksModel, JwtUtil jwtUtil) {
         this.booksModel = booksModel;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/books")
@@ -51,24 +56,29 @@ public class BooksController {
 
 
     @GetMapping("/books/favorites")
-    public List<BookView> getFavorites(HttpSession session) {
-        Object currentUserId = session.getAttribute("user_id");
-        if (currentUserId == null) {
+    public List<BookView> getFavorites(HttpServletRequest request) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 
+        Object currentUserId = claims.get("user_id");
         List<BookEntity> bookEntities = booksModel.getFavorites((int) currentUserId);
 
         return BookView.fromEntities(bookEntities);
     }
 
     @GetMapping("/books/admin")
-    public List<BookView> getAdminBooks(HttpSession session) {
-        Object role = session.getAttribute("role");
+    public List<BookView> getAdminBooks(HttpServletRequest request) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
+        }
+
+        Object role = claims.get("role");
         if (role == null || !role.equals(3)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
         }
-
 
         List<BookEntity> bookEntities = booksModel.getForAdmin();
 
@@ -77,11 +87,12 @@ public class BooksController {
 
 
     @PostMapping("/books/add")
-    public Integer add(@RequestBody AddBookDto addBookDto, HttpSession session) {
-        Object currentUserId = session.getAttribute("user_id");
-        if (currentUserId == null) {
+    public Integer add(HttpServletRequest request, @RequestBody AddBookDto addBookDto) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
+
 
         return booksModel.addBook(addBookDto);
     }
@@ -92,8 +103,13 @@ public class BooksController {
     }
 
     @PostMapping("/books/{id}/accept")
-    public void acceptBook(@PathVariable("id") int id, HttpSession session) {
-        Object role = session.getAttribute("role");
+    public void acceptBook(HttpServletRequest request, @PathVariable("id") int id) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
+        }
+
+        Object role = claims.get("role");
         if (role == null || !role.equals(3)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
         }
@@ -102,8 +118,13 @@ public class BooksController {
     }
 
     @PostMapping("/books/{id}/reject")
-    public void rejectBook(@PathVariable("id") int id, HttpSession session) {
-        Object role = session.getAttribute("role");
+    public void rejectBook(HttpServletRequest request, @PathVariable("id") int id) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
+        }
+
+        Object role = claims.get("role");
         if (role == null || !role.equals(3)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be admin to access this resource");
         }

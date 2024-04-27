@@ -4,9 +4,10 @@ import com.sajdakk.flipbook.dtos.LoginDto;
 import com.sajdakk.flipbook.dtos.RegisterDto;
 import com.sajdakk.flipbook.entities.UserEntity;
 import com.sajdakk.flipbook.models.UsersModel;
-import com.sajdakk.flipbook.repositories.BooksRepository;
+import com.sajdakk.flipbook.utils.JwtUtil;
 import com.sajdakk.flipbook.views.UserView;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,41 +15,35 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController("/auth")
 public class AuthController {
-    UsersModel usersModel;
+    private final UsersModel usersModel;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(UsersModel usersModel) {
+    public AuthController(UsersModel usersModel, JwtUtil jwtUtil) {
         this.usersModel = usersModel;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("login")
-    public UserView login(HttpSession session, @RequestBody LoginDto dto) {
+    public UserView login(HttpServletResponse response, @RequestBody LoginDto dto) {
         UserEntity user = usersModel.verifyUser(dto.getEmail(), dto.getPassword());
 
-        setSession(session, user);
-        return UserView.fromEntity(user);
+        response.addCookie(new Cookie("X-Auth-Token", jwtUtil.createToken(user)));
 
+        return UserView.fromEntity(user);
     }
 
     @PostMapping("register")
-    public UserView register(HttpSession session, @RequestBody RegisterDto dto) {
+    public UserView register(HttpServletResponse response, @RequestBody RegisterDto dto) {
         UserEntity user = usersModel.createUser(dto);
 
-        setSession(session, user);
-        return UserView.fromEntity(user);
+        response.addCookie(new Cookie("X-Auth-Token", jwtUtil.createToken(user)));
 
+        return UserView.fromEntity(user);
     }
 
     @PostMapping("logout")
-    public void logout(HttpSession session) {
-        session.invalidate();
-    }
-
-    private void setSession(HttpSession session, UserEntity user) {
-        session.setAttribute("user_id", user.getId());
-        session.setAttribute("email", user.getEmail());
-        session.setAttribute("name", user.getName());
-        session.setAttribute("surname", user.getSurname());
-        session.setAttribute("role", user.getRole().getId());
+    public void logout(HttpServletResponse response) {
+        response.addCookie(new Cookie("X-Auth-Token", ""));
     }
 }

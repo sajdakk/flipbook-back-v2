@@ -1,8 +1,10 @@
 package com.sajdakk.flipbook.controllers;
 
 import com.sajdakk.flipbook.models.GenresModel;
+import com.sajdakk.flipbook.utils.JwtUtil;
 import com.sajdakk.flipbook.views.GenreView;
-import jakarta.servlet.http.HttpSession;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,17 +15,20 @@ import java.util.List;
 
 @RestController("/genres")
 public class GenresController {
-    GenresModel genresModel;
+    private final GenresModel genresModel;
+    private final JwtUtil jwtUtil;
+
 
     @Autowired
-    public GenresController(GenresModel genresModel) {
+    public GenresController(GenresModel genresModel, JwtUtil jwtUtil) {
         this.genresModel = genresModel;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/genres")
-    public List<GenreView> getAll(HttpSession session) {
-        Object currentUserId = session.getAttribute("user_id");
-        if (currentUserId == null) {
+    public List<GenreView> getAll(HttpServletRequest request) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 

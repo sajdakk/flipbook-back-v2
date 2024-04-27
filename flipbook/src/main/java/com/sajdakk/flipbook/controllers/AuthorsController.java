@@ -1,37 +1,33 @@
 package com.sajdakk.flipbook.controllers;
 
-import com.sajdakk.flipbook.dtos.AddBookDto;
-import com.sajdakk.flipbook.dtos.SearchDto;
-import com.sajdakk.flipbook.entities.AuthorEntity;
-import com.sajdakk.flipbook.entities.BookEntity;
-import com.sajdakk.flipbook.entities.ReviewEntity;
 import com.sajdakk.flipbook.models.AuthorsModel;
-import com.sajdakk.flipbook.repositories.AuthorsRepository;
-import com.sajdakk.flipbook.repositories.BooksRepository;
+import com.sajdakk.flipbook.utils.JwtUtil;
 import com.sajdakk.flipbook.views.AuthorView;
-import com.sajdakk.flipbook.views.BookView;
-import jakarta.servlet.http.HttpSession;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
 
 @RestController("/authors")
 public class AuthorsController {
-    AuthorsModel authorsModel;
+    private final AuthorsModel authorsModel;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthorsController(AuthorsModel authorsModel) {
+    public AuthorsController(AuthorsModel authorsModel, JwtUtil jwtUtil) {
         this.authorsModel = authorsModel;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/authors")
-    public List<AuthorView> getAll(HttpSession session) {
-        Object currentUserId = session.getAttribute("user_id");
-        if (currentUserId == null) {
+    public List<AuthorView> getAll(HttpServletRequest request) {
+        Claims claims = jwtUtil.resolveClaims(request);
+        if (claims == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 

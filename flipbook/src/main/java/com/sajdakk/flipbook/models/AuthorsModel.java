@@ -7,7 +7,6 @@ import java.util.List;
 
 @Component
 public class AuthorsModel {
-
     AuthorsRepository authorsRepository;
 
     public AuthorsModel(AuthorsRepository authorsRepository) {
