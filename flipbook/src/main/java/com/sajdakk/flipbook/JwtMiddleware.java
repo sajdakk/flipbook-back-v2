@@ -28,7 +28,19 @@ public class JwtMiddleware extends OncePerRequestFilter {
         try {
             final Claims claims = jwtUtil.resolveClaims(request);
             if (claims != null) {
-                response.addCookie(new Cookie("X-Auth-Token", jwtUtil.extendToken(claims)));
+                // Retrieve existing X-Auth-Token cookie
+                Cookie[] cookies = request.getCookies();
+                if (cookies != null) {
+                    for (Cookie cookie : cookies) {
+                        if (cookie.getName().equals("X-Auth-Token")) {
+                            cookie.setValue(jwtUtil.extendToken(claims));
+                            cookie.setPath("/");
+
+                            response.addCookie(cookie);
+                            break;
+                        }
+                    }
+                }
             }
         } catch (Exception ignored) {
         }

@@ -28,7 +28,10 @@ public class AuthController {
     public UserView login(HttpServletResponse response, @RequestBody LoginDto dto) {
         UserEntity user = usersModel.verifyUser(dto.getEmail(), dto.getPassword());
 
-        response.addCookie(new Cookie("X-Auth-Token", jwtUtil.createToken(user)));
+        final Cookie cookie = new Cookie("X-Auth-Token", jwtUtil.createToken(user));
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
 
         return UserView.fromEntity(user);
     }
@@ -37,13 +40,19 @@ public class AuthController {
     public UserView register(HttpServletResponse response, @RequestBody RegisterDto dto) {
         UserEntity user = usersModel.createUser(dto);
 
-        response.addCookie(new Cookie("X-Auth-Token", jwtUtil.createToken(user)));
+        final Cookie cookie = new Cookie("X-Auth-Token", jwtUtil.createToken(user));
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
 
         return UserView.fromEntity(user);
     }
 
     @PostMapping("logout")
     public void logout(HttpServletResponse response) {
-        response.addCookie(new Cookie("X-Auth-Token", ""));
+        final Cookie cookie = new Cookie("X-Auth-Token", "");
+        cookie.setPath("/");
+
+        response.addCookie(cookie);
     }
 }
