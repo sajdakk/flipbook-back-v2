@@ -8,14 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtUtil {
     private final String secretKey = "mysecretkey";
-    private final short accessTokenValidityMinutes = 15;
 
     private final JwtParser jwtParser;
 
@@ -36,6 +34,7 @@ public class JwtUtil {
 
     public String extendToken(Claims claims) {
         Date tokenCreateTime = new Date();
+        short accessTokenValidityMinutes = 15;
         Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidityMinutes));
 
         return Jwts.builder()

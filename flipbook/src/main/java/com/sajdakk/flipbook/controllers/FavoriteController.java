@@ -30,7 +30,7 @@ public class FavoriteController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You need to be logged in to access this resource");
         }
 
-        Object currentUserId = claims.get("userId");
+        Object currentUserId = claims.get("user_id");
         favoritesModel.toggleFavorite((int) currentUserId, dto.getBookId());
     }
 }
