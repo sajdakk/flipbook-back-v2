@@ -35,6 +35,6 @@ build/
 
 uploads
 .mvn
-mvn
-mvn.cmd
+mvnw
+mvnw.cmd
 .DS_Store
