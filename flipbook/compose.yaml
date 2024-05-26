@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: 'postgres:16.2-alpine'
+    env_file: '.env'
+    ports:
+      - '5432:5432'
+    networks:
+      - 'inet'
+
+  pgadmin:
+    image: 'dpage/pgadmin4:latest'
+    env_file: '.env'
+    ports:
+      - '5050:80'
+    networks:
+      - 'inet'
+
+  rabbitmq:
+    image: 'rabbitmq:management'
+    restart: 'no'
+    env_file: '.env'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+networks:
+  inet:
+    driver: bridge
