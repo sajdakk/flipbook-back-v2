@@ -8,6 +8,7 @@ import com.sajdakk.flipbook.utils.JwtUtil;
 import com.sajdakk.flipbook.views.UserView;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,11 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UsersModel usersModel;
     private final JwtUtil jwtUtil;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public AuthController(UsersModel usersModel, JwtUtil jwtUtil) {
+    public AuthController(UsersModel usersModel, JwtUtil jwtUtil, RabbitTemplate rabbitTemplate) {
         this.usersModel = usersModel;
         this.jwtUtil = jwtUtil;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @PostMapping("login")
@@ -44,6 +47,7 @@ public class AuthController {
         cookie.setPath("/");
 
         response.addCookie(cookie);
+        rabbitTemplate.convertAndSend("x.post-registration","", dto);
 
         return UserView.fromEntity(user);
     }
