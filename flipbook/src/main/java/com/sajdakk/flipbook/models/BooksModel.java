@@ -10,13 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.awt.print.Book;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -68,8 +63,6 @@ public class BooksModel {
             bookAuthors.add(author.getId());
         }
 
-        System.out.println(bookAuthors);
-        System.out.println("Dodajemy ksiazke!!!!");
         Integer[] authorsArray = new Integer[bookAuthors.size()];
         authorsArray = bookAuthors.toArray(authorsArray);
 
@@ -96,6 +89,9 @@ public class BooksModel {
 
     public List<BookEntity> getAllBooks() {
         List<BookEntity> result = booksRepository.findAll();
+        //Remove books that are not accepted
+        result.removeIf(book -> book.getAcceptDate() == null);
+
         HashMap<Integer, Double> averages = new HashMap<>();
         for (BookEntity book : result) {
             double sum = 0;
