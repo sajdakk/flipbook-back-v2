@@ -42,15 +42,12 @@ public class BooksModel {
         List<AuthorDto> authorsDto = addBookDto.getAuthors();
         for (AuthorDto authorDto : authorsDto) {
             Integer id = authorDto.getId();
-            System.out.println(id);
             if (id == null) {
                 AuthorEntity author = AuthorEntity.builder()
                         .name(authorDto.getName())
                         .surname(authorDto.getSurname())
                         .build();
-                System.out.println(author);
                 AuthorEntity result = authorsRepository.save(author);
-                System.out.println(result);
                 bookAuthors.add(result.getId());
                 continue;
             }

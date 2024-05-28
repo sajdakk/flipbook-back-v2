@@ -69,9 +69,6 @@ public class SendEmailService {
             message.setText(emailContent);
 
             Transport.send(message);
-
-            System.out.println("Done");
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }
