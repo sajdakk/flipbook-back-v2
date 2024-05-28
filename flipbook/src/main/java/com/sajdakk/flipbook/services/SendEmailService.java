@@ -1,4 +1,4 @@
-package com.sajdakk.flipbook.services.SendEmailService;
+package com.sajdakk.flipbook.services;
 
 import com.sajdakk.flipbook.dtos.RegisterDto;
 import jakarta.mail.*;
